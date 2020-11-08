@@ -27,7 +27,7 @@ class MainWindow:
 
         wrapper_books = tk.LabelFrame(root, text="Listado de Libros")
         wrapper_books.pack(fill="both", expand="yes", padx=20, pady=100)
-
+        self.root = root
         self.treeXScroll = ttk.Scrollbar(wrapper_books, orient="vertical")
         self.treeXScroll.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -50,21 +50,27 @@ class MainWindow:
 
     def main_books(self, root):
         self.search = tk.StringVar()
+        self.page = tk.StringVar()
         label_search = tk.Label(root, text="Buscador:", font=("Arial", 12)).place(x=15, y=20)
         entry_search = tk.Entry(root, width=50, textvariable=self.search).place(x=100, y=20)
-        button_search = tk.Button(root, text="Buscar", font=("Arial", 12), command=self.list_search).place(x=530, y=15)
+        label_page = tk.Label(root, text="Pagina:", font=("Arial", 12)).place(x=530, y=20)
+        entry_page = tk.Entry(root, width=10, textvariable=self.page).place(x=590, y=20)
+        button_search = tk.Button(root, text="Buscar", font=("Arial", 12), command=lambda :self.list_search(self.page.get())).place(x=700, y=15)
         button_edit = tk.Button(root, text="Ver Libro", font=("Arial", 12), command=self.view_books).place(x=20, y=55)
 
-    def list_search(self):
+
+        button_next = tk.Button(root, text="Next-Page", font=("Arial", 12), command=lambda :self.list_search(str(1+1))).place(x=530, y=355)
+        button_prev = tk.Button(root, text="Prev-Page", font=("Arial", 12), command=lambda :self.list_search(str(1))).place(x=230, y=355)
+
+    def list_search(self,page=1):
         search_list = self.search.get()
         try:
-            url = "https://api.itbook.store/1.0/search/" + search_list.lower()
+            url = "https://api.itbook.store/1.0/search/" + search_list.lower()+ "/"+page
             response = requests.get(url)
             if response.status_code == 200:
                 payload = response.json()
                 self.books = payload.get('books', [])
                 total = payload.get('total')
-                print(total)
                 if self.books:
                     lista = []
                     messagebox.showinfo(title="Busqueda Completada", message='Registros encontrados')
