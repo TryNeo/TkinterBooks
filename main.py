@@ -27,6 +27,7 @@ class MainWindow:
 
         wrapper_books = tk.LabelFrame(root, text="Listado de Libros")
         wrapper_books.pack(fill="both", expand="yes", padx=20, pady=100)
+
         self.treeXScroll = ttk.Scrollbar(wrapper_books, orient="vertical")
         self.treeXScroll.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -34,13 +35,12 @@ class MainWindow:
                                          yscrollcommand=self.treeXScroll.set)
         self.my_tree_cate.pack(fill=tk.BOTH)
         self.treeXScroll.config(command=self.my_tree_cate.yview)
-
         self.my_tree_cate.heading(1, text="ISBN")
-        self.my_tree_cate.column(1, minwidth=0, width=120, stretch=tk.NO)
+        self.my_tree_cate.column(1, minwidth=120, width=120, stretch=tk.NO)
         self.my_tree_cate.heading(2, text="TITULO")
-        self.my_tree_cate.column(2, minwidth=0, width=350, stretch=tk.NO)
+        self.my_tree_cate.column(2, minwidth=350, width=350, stretch=tk.NO)
         self.my_tree_cate.heading(3, text="SUBTITULO")
-        self.my_tree_cate.column(3, minwidth=0, width=400, stretch=tk.NO)
+        self.my_tree_cate.column(3, minwidth=400, width=400, stretch=tk.NO)
         self.my_tree_cate.heading(4, text="PRECIO")
         self.my_tree_cate.heading(5, text="IMAGEN")
         self.my_tree_cate.heading(6, text="URL")
@@ -64,6 +64,7 @@ class MainWindow:
                 payload = response.json()
                 self.books = payload.get('books', [])
                 total = payload.get('total')
+                print(total)
                 if self.books:
                     lista = []
                     messagebox.showinfo(title="Busqueda Completada", message='Registros encontrados')
@@ -87,18 +88,21 @@ class MainWindow:
     def list_get(self, event):
         row_id = self.my_tree_cate.identify_row(event.y)
         item = self.my_tree_cate.item(self.my_tree_cate.focus())
-        self.isbn_13.set(item['values'][0])
-        self.title.set(item['values'][1])
-        self.subtitle.set(item['values'][2])
-        self.url.set(item['values'][5])
+        try:
+            self.isbn_13.set(item['values'][0])
+            self.title.set(item['values'][1])
+            self.subtitle.set(item['values'][2])
+            self.price.set(item['price'][3])
+            self.url.set(item['values'][5])
+        except AttributeError as error:
+            pass
 
     def view_books(self):
         try:
             self.my_tree_cate.item(self.my_tree_cate.selection())['values'][0]
             self.view_book = tk.Toplevel()
             self.view_book.title('Libro')
-            self.view_book.geometry("800x450")
-            self.view_book.resizable(0,0)
+            self.view_book.geometry("1000x450")
             self.view_book.update_idletasks()
             width = self.view_book.winfo_width()
             frm_width = self.view_book.winfo_rootx() - self.view_book.winfo_x()
@@ -114,20 +118,23 @@ class MainWindow:
             self.isbn_13 = tk.StringVar()
             self.title = tk.StringVar()
             self.subtitle = tk.StringVar()
+            self.price = tk.StringVar()
             self.url = tk.StringVar()
 
             self.isbn_13.set(self.my_tree_cate.item(self.my_tree_cate.selection())['values'][0])
             self.title.set(self.my_tree_cate.item(self.my_tree_cate.selection())['values'][1])
             self.subtitle.set(self.my_tree_cate.item(self.my_tree_cate.selection())['values'][2])
+            self.price.set(self.my_tree_cate.item(self.my_tree_cate.selection())['values'][3])
             self.url.set(self.my_tree_cate.item(self.my_tree_cate.selection())['values'][5])
 
             label_title = tk.Label(self.view_book, font=("Arial", 15), textvariable=self.title).place(x=150, y=0)
             label_isbn13 = tk.Label(self.view_book, font=("Arial", 12), textvariable=self.isbn_13).place(x=20, y=90)
-            label_subtitle = tk.Label(self.view_book, font=("Arial", 12), textvariable=self.subtitle).place(x=20, y=50)
+            label_price = tk.Label(self.view_book, font=("Arial", 12), textvariable=self.price).place(x=20, y=30)
+            label_subtitle = tk.Label(self.view_book, font=("Arial", 12), textvariable=self.subtitle,
+                                      justify=tk.LEFT).place(x=20, y=50)
             open_url = tk.Button(self.view_book, text='url de libro', command=lambda: self.open_url(
                 self.my_tree_cate.item(self.my_tree_cate.selection())['values'][5])).place(x=20, y=200)
             self.open_img()
-
         except IndexError as e:
             messagebox.showerror("Error", 'Error! seleciona un libro')
 
@@ -146,11 +153,12 @@ class MainWindow:
             messagebox.showerror("Error", 'No se pudo descargar la imagen')
 
     def open_img(self):
-        img = ImageTk.PhotoImage(file="image/default.png")
         self.dowloand_img()
-        panel = tk.Label(self.view_book, image=img).place(x=530, y=20)
+
+        img = ImageTk.PhotoImage(file="image/default.png")
+        panel = tk.Label(self.view_book, image=img)
         panel.image = img
-        panel.pack()
+        panel.pack(side="right")
 
 
 if __name__ == '__main__':
