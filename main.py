@@ -58,7 +58,7 @@ class MainWindow:
         button_search = tk.Button(root, text="Buscar", font=("Arial", 12), command=lambda :self.list_search(self.page.get())).place(x=700, y=15)
         button_edit = tk.Button(root, text="Ver Libro", font=("Arial", 12), command=self.view_books).place(x=20, y=55)
 
-
+        #arreglar botones y que sean dinamicos
         button_next = tk.Button(root, text="Next-Page", font=("Arial", 12), command=lambda :self.list_search(str(1+1))).place(x=530, y=355)
         button_prev = tk.Button(root, text="Prev-Page", font=("Arial", 12), command=lambda :self.list_search(str(1))).place(x=230, y=355)
 
