@@ -167,17 +167,18 @@ class MainWindow:
     def dowloand_img(self):
         try:
             url_imagen = self.my_tree_cate.item(self.my_tree_cate.selection())['values'][4]
-            nombre_local_imagen = "image/default.png"
+            self.nombre_local_imagen = "image/default.png"
             imagen = requests.get(url_imagen).content
-            with open(nombre_local_imagen, 'wb') as handler:
+            with open(self.nombre_local_imagen, 'wb') as handler:
                 handler.write(imagen)
         except requests.exceptions.ConnectionError as error:
             messagebox.showerror("Error", 'No se pudo descargar la imagen')
+            self.nombre_local_imagen = "image/error.png"
 
     def open_img(self):
         self.dowloand_img()
 
-        img = ImageTk.PhotoImage(file="image/default.png")
+        img = ImageTk.PhotoImage(file=self.nombre_local_imagen)
         panel = tk.Label(self.view_book, image=img)
         panel.image = img
         panel.pack(side="left")
